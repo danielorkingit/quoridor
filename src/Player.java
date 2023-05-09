@@ -34,13 +34,15 @@ public class Player {
 		
 	}
 	
-	public void makeMove(String input) {
+	public boolean makeMove(String input) {
 		
 		Scanner sc1 = new Scanner(System.in);
 		
 		if (input.equals("m")) {
 			int[] possibleMoves = court.getPosibleMoves(this);
 			System.out.println("Upwart (u): " + possibleMoves[0] + " Right (r): " + possibleMoves[1] + " Left (l): " + possibleMoves[2] + " Downwart (d): " + possibleMoves[3]);
+			
+			// 0: no 1: yes 2: over player 3: over-left 4: over-right
 			
 			while (true) {
 				String direction = sc1.nextLine();
@@ -54,6 +56,16 @@ public class Player {
 						this.y -= 4;
 						break;
 					}
+					if(possibleMoves[0] == 3) {
+						this.y -= 2;
+						this.x += 2;
+						break;
+					} 
+					if(possibleMoves[0] == 4) {
+						this.y -= 2;
+						this.x -= 2;
+						break;
+					}
 					
 				}
 				if (direction.equals("r")) {
@@ -63,6 +75,16 @@ public class Player {
 					}
 					if(possibleMoves[1] == 2) {
 						this.x += 4;
+						break;
+					}
+					if(possibleMoves[0] == 3) {
+						this.y += 2;
+						this.x += 2;
+						break;
+					} 
+					if(possibleMoves[0] == 4) {
+						this.y -= 2;
+						this.x += 2;
 						break;
 					}
 				}
@@ -75,6 +97,16 @@ public class Player {
 						this.x -= 4;
 						break;
 					}
+					if(possibleMoves[0] == 3) {
+						this.y += 2;
+						this.x -= 2;
+						break;
+					} 
+					if(possibleMoves[0] == 4) {
+						this.y -= 2;
+						this.x -= 2;
+						break;
+					}
 				}
 				if (direction.equals("d")) {
 					if(possibleMoves[3] == 1) {
@@ -85,11 +117,22 @@ public class Player {
 						this.y += 4;
 						break;
 					}
+					if(possibleMoves[0] == 3) {
+						this.y += 2;
+						this.x += 2;
+						break;
+					} 
+					if(possibleMoves[0] == 4) {
+						this.y += 2;
+						this.x -= 2;
+						break;
+					}
 				}
 				System.out.println("Invalid input. ");
 				System.out.println("Upwart (u): " + possibleMoves[0] + " Right (r): " + possibleMoves[1] + " Left (l): " + possibleMoves[2] + " Downwart (d): " + possibleMoves[3]);
 			}
 			court.update();
+			return false;
 		}
 		if (input.equals("w")) {
 			if (walls < 10) {
@@ -108,7 +151,7 @@ public class Player {
 					
 					if (court.addWall(x1,y1,x2,y2) == true) {
 						walls += 1;
-						break;
+						return false;
 					}
 					
 					System.out.println("Invalid input.");
@@ -116,8 +159,12 @@ public class Player {
 			} else {
 				System.out.println("No walls left.");			
 			}
-
-			
+		} 
+		if (input.equals("p")) {
+			court.print();
+			return true;
+		} else {
+			return true;
 		}
 		
 	}
@@ -131,6 +178,9 @@ public class Player {
 	}
 
 	public boolean checkWin() {
+		
+		// checks if player is on the opposite side
+		
 		if (id == 0) {
 			if (y == 16) {
 				return true;

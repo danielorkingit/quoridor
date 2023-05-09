@@ -24,12 +24,15 @@ public class Main {
 		}
 		
 		// Main loop
-		
+		court.print();
 		while (true) {
-			
 			for (Player p : player) {
-				System.out.println("Move (m) \nPlace wall (w) \nGive up (x) \n\n");
-				p.makeMove(sc.nextLine());
+				System.out.println("Its " + p.name + " move.");
+				System.out.println("Move (m) \nPlace wall (w) \nGive up (x) \nPrint field (p) \n\n");
+				while (p.makeMove(sc.nextLine()) == true) {
+					System.out.println("Move (m) \nPlace wall (w) \nGive up (x) \nPrint field (p) \n\n");
+				}
+
 				if(p.checkWin() == true) {
 					System.out.println(p.name + " has won.");
 					court.print();
@@ -37,7 +40,7 @@ public class Main {
 				}
 				court.print();
 			}
-			
+			break;
 		}
 	}
 

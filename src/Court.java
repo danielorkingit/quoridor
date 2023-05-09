@@ -6,7 +6,6 @@ public class Court {
 	
 	Object[][] court = new Object[17][17];
 	
-	
 	{
 		for (int i = 0 ; i < 17 ; i += 2) {
 			for (int j = 0; j < 17 ; j += 2) {
@@ -25,7 +24,11 @@ public class Court {
 			for (int j = 0; j < 17 ; j++) {
 				if (court[i][j] instanceof Field) System.out.print("00 "); 
 				if (court[i][j] instanceof Wall) System.out.print("WW ");
-				if (court[i][j] instanceof Player) System.out.print("PP "); 
+				if (court[i][j] instanceof Player) {
+					Player p = (Player) court[i][j];
+					
+					System.out.print(p.id + "  "); 
+				}
 				if (court[i][j] == null) System.out.print("-  "); 
 			}
 			System.out.println();
@@ -34,7 +37,7 @@ public class Court {
 
 	public int[] getPosibleMoves(Player player) {
 		
-		int[] result = new int[4]; // 0: no 1: yes 2: over player
+		int[] result = new int[4]; // 0: no 1: yes 2: over player 3: over-left 4: over-right
 		
 		for (int i = 0 ; i < 4 ; i++) {
 			result[i] = 1;
@@ -45,7 +48,10 @@ public class Court {
 		
 		// Check upwart
 		
+		// try-catch to handle overflow exception
+		
 		try{
+			// default case
 			if (!(court[y-2][x] instanceof Field) || (court[y-1][x] instanceof Wall)) {
 				// check if player instead
 				if (court[y-2][x] instanceof Player && !(court[y-1][x] instanceof Wall)) {
@@ -54,6 +60,12 @@ public class Court {
 						result[0] = 0;
 					} else if (!(court[y-3][x] instanceof Wall)){
 						result[0] = 2;
+						// Over right
+					} else if (court[y-2][x+2] instanceof Field && !(court[y-2][x+1] instanceof Wall)) {
+						result[0] = 4;
+						// Over left
+					} else if (court[y-2][x-2] instanceof Field && !(court[y-2][x-1] instanceof Wall)) {
+						result[0] = 3;
 					}
 				} else {
 					result[0] = 0;
@@ -66,6 +78,7 @@ public class Court {
 		// Check right
 		
 		try{
+			// default case
 			if (!(court[y][x+2] instanceof Field) || (court[y][x+1] instanceof Wall)) {
 				// check if player instead
 				if (court[y][x+2] instanceof Player && !(court[y][x+1] instanceof Wall)) {
@@ -74,6 +87,12 @@ public class Court {
 						result[1] = 0;
 					} else if (!(court[y][x+3] instanceof Wall)){
 						result[1] = 2;
+						// Over right
+					} else if (court[y+2][x+2] instanceof Field && !(court[y+1][x+2] instanceof Wall)) {
+						result[0] = 4;
+						// Over left
+					} else if (court[y-2][x+2] instanceof Field && !(court[y-1][x+2] instanceof Wall)) {
+						result[0] = 3;
 					}
 				} else {
 					result[1] = 0;
@@ -86,6 +105,7 @@ public class Court {
 		// Check left
 		
 		try{
+			// default case
 			if (!(court[y][x-2] instanceof Field) || (court[y][x-1] instanceof Wall)) {
 				// check if player instead
 				if (court[y][x-2] instanceof Player && !(court[y][x-1] instanceof Wall)) {
@@ -94,6 +114,12 @@ public class Court {
 						result[2] = 0;
 					} else if (!(court[y][x-3] instanceof Wall)){
 						result[2] = 2;
+						// Over right
+					} else if (court[y+2][x-2] instanceof Field && !(court[y+1][x-2] instanceof Wall)) {
+						result[0] = 4;
+						// Over left
+					} else if (court[y-2][x-2] instanceof Field && !(court[y-1][x-2] instanceof Wall)) {
+						result[0] = 3;
 					}
 				} else {
 					result[2] = 0;
@@ -106,6 +132,7 @@ public class Court {
 		// Check downwart
 		
 		try{
+			// default case
 			if (!(court[y+2][x] instanceof Field) || (court[y+1][x] instanceof Wall)) {
 				// check if player instead
 				if (court[y+2][x] instanceof Player && !(court[y+1][x] instanceof Wall)) {
@@ -114,6 +141,12 @@ public class Court {
 						result[3] = 0;
 					} else if (!(court[y+3][x] instanceof Wall)){
 						result[3] = 2;
+						// Over right
+					} else if (court[y+2][x+2] instanceof Field && !(court[y+2][x+1] instanceof Wall)) {
+						result[0] = 4;
+						// Over left
+					} else if (court[y+2][x-2] instanceof Field && !(court[y+2][x-1] instanceof Wall)) {
+						result[0] = 3;
 					}
 				} else {
 					result[3] = 0;
@@ -128,6 +161,8 @@ public class Court {
 
 	public void update() {
 		
+		// Update the positions of the players
+		
 		for (int i = 0 ; i < 17 ; i++) {
 			for (int j = 0; j < 17 ; j++) {
 				if(court[i][j] instanceof Player) {
@@ -138,20 +173,17 @@ public class Court {
 						court[p.getPosition().getValue1()][p.getPosition().getValue0()] =  p;
 					}
 				}
-				// Wall
-				
 			}
 		}
 		
 	}
 
 	public boolean addWall(int x1, int y1, int x2, int y2) {
-		
-		// check if player is able to move
-		
-		if (court[y1][x1] == null && court[y2][x2] == null && (Math.abs(x1-x2) == 2 || Math.abs(y2-y1) == 2)) {
+				
+		if (court[y1][x1] == null && court[y2][x2] == null && (Math.abs(x1-x2) == 2 || Math.abs(y2-y1) == 2)) { // checks if two walls are separated by one block
 			court[y1][x1] = new Wall(x1,y1,x2,y2);
 			court[y2][x2] = court[y1][x1];
+			// Middle part
 			court[(y1+y2)/2][(x1+x2)/2] = court[y1][x1];
 			return true;
 		}
